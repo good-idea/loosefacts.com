@@ -1,0 +1,94 @@
+# Kirby .htaccess
+
+# rewrite rules
+<IfModule mod_rewrite.c>
+
+# enable awesome urls. i.e.:
+# http://yourdomain.com/about-us/team
+RewriteEngine on
+
+# make sure to set the RewriteBase correctly
+# if you are running the site in a subfolder.
+# Otherwise links or the entire site will break.
+#
+# If your homepage is http://yourdomain.com/mysite
+# Set the RewriteBase to:
+#
+# RewriteBase /mysite
+
+RewriteBase /
+
+# block text files in the content folder from being accessed directly
+RewriteRule ^content/(.*)\.(txt|md|mdown)$ error [R=301,L]
+
+# block all files in the site folder from being accessed directly
+RewriteRule ^site/(.*) error [R=301,L]
+
+# block all files in the kirby folder from being accessed directly
+RewriteRule ^kirby/(.*) error [R=301,L]
+
+# make panel links work
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^panel/(.*) panel/index.php [L]
+
+# make site links work
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*) index.php [L]
+
+#############################################################################################################
+# REDIRECT ANY DIRECT IMAGE REQUEST TO A CACHED VERSION
+#
+# You may add files or directories that shouldn't be touched by squeezr like this:
+#
+#    RewriteCond %{REQUEST_URI} !path/to/some/file-or-directory
+#
+# Please refer to the mod_rewrite documentation at http://httpd.apache.org/docs/2.2/mod/mod_rewrite.html for
+# further possibilities and instructions.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteCond %{ENV:REDIRECT_BREAKPOINT} !\d+px
+    RewriteCond %{QUERY_STRING} !^([^&]*&)*squeezr=(0|false|no)
+    RewriteCond %{HTTP_COOKIE} squeezr.images=(\d+px) [NC]
+    RewriteRule ^(.+)(\.(?:jpe?g|gif|png))$ squeezr/cache/$1-%1$2 [NC,E=BREAKPOINT:%1,L]
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Please make sure that you set this path     ^^^     to the squeezr root directory that is also specified
+# for the SQUEEZR_ROOT constant in the common engine configuration (SQUEEZR_ROOT/conf/common.php). If you
+# apply the default setup for squeezr (i.e. put everything into a directory named "squeezr" under your
+# website's document root), then you shouldn't have to change anything.
+#############################################################################################################
+
+
+</IfModule>
+
+# Additional recommended values
+# Remove comments for those you want to use.
+#
+# AddDefaultCharset UTF-8
+#
+# php_flag short_open_tag on
+
+
+
+# Various expiration headers for proper file caching (not required for squeezr, but recommended anyway)
+<IfModule mod_expires.c>
+
+    ExpiresActive on
+    
+    # Images
+    ExpiresByType image/gif "access plus 35 days"
+    ExpiresByType image/png "access plus 35 days"
+    ExpiresByType image/jpg "access plus 35 days"
+    ExpiresByType image/jpeg "access plus 35 days"
+    
+    # Text based files
+    ExpiresByType text/css "access plus 35 days"
+    ExpiresByType text/xml "access plus 35 days"
+    ExpiresByType text/javascript "access plus 35 days"
+    ExpiresByType application/x-shockwave-flash "access plus 35 days"
+    
+    # Default expiration
+    ExpiresDefault "access plus 1 days"
+
+</IfModule>

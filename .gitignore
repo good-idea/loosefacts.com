@@ -1,0 +1,11 @@
+.DS_Store
+content/
+assets/avatars/*
+site/accounts/*
+thumbs/*
+content/*
+kirby/
+panel/
+index.php
+squeezr/cache/*
+.git-push.sh
